@@ -34,6 +34,7 @@
     <div id="slider" class="slider">
       <div class="thumb"></div>
     </div>
+    slide: <span id="slide"></span> change: <span id="change"></span>
     <script>
       var slider = new Slider({
         elem: $('#slider')
@@ -42,16 +43,26 @@
       function Slider(options) {
         var elem = options.elem;
         var thumbElem = elem.find('.thumb');
+        var max = options.max || 100;
 
         var sliderCoords, thumbCoords, shiftX, shiftY;
 
+        var self = this;
+
         elem.on('dragstart', false)
           .on('mousedown', '.thumb', onThumbMouseDown);
+
+        this.setValue = function(value) {
+          var newLeft = (value/max) * (elem.width() - thumbElem.width())
+
+          thumbElem.css('left', newLeft);
+        }
 
         // ---------------
 
         function onDocumentMouseMove(e) {
           moveTo(e.pageX);
+          slide();
         }
 
         function onThumbMouseDown(e) {
@@ -61,6 +72,7 @@
 
         function onDocumentMouseUp() {
           endDrag();
+          change();
         }
 
         // -------------------
@@ -100,7 +112,47 @@
           $(document).off('.slider');
         }
 
+        function change() {
+          var value = getVal();
+
+          $(self).triggerHandler({
+            type: "change",
+            value: Math.round(value),
+          });
+        }
+
+        function slide() {
+          var value = getVal();
+
+          $(self).triggerHandler({
+            type: "slide",
+            value: Math.round(value),
+          });
+        }
+
+        function getVal() {
+          return (thumbElem.offset().left - elem.offset().left) * max / ( elem.width() - thumbElem.width() );
+        }
+
       }
+
+
+      var slider = new Slider({
+        elem: $('#slider'),
+        max: 100 // слайдер на самой правой позиции соответствует 100
+      });
+
+      slider.setValue(50);
+
+      $(slider).on({
+        slide: function(e) {
+          $('#slide').html(e.value);
+        },
+        change: function(e) {
+          $('#change').html(e.value);
+        }
+      });
+
     </script>
   </body>
 
