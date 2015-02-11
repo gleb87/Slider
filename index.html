@@ -27,6 +27,10 @@
         background: blue;
         cursor: pointer;
       }
+
+      .sliding .thumb {
+        cursor: ew-resize;
+      }
     </style>
   </head>
   
@@ -106,10 +110,13 @@
             'mouseup.slider': onDocumentMouseUp
           });
 
+          elem.addClass("sliding");
         }
 
         function endDrag() {
           $(document).off('.slider');
+
+          elem.removeClass("sliding");
         }
 
         function change() {
